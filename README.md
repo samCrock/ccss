@@ -7,7 +7,8 @@ Monorepo for personal AI assistant workflows and skills. Each skill has independ
 ```
 ccss/
 ├── skills/
-│   └── frontend-dev-cycle/   → GitHub repo with own versioning
+│   ├── frontend-dev-cycle/        → GitHub repo with own versioning
+│   └── navigation-recorder-automator/ → GitHub repo with own versioning
 └── README.md
 ```
 
@@ -16,6 +17,7 @@ ccss/
 | Skill | Remote | Description |
 |-------|--------|-------------|
 | frontend-dev-cycle | [GitHub](https://github.com/samCrock/frontend-dev-cycle) | Iterative frontend dev with Playwright E2E |
+| navigation-recorder-automator | [GitHub](https://github.com/samCrock/navigation-recorder-automator) | Record & replay navigation with Playwright |
 
 ## Adding a New Skill
 
