@@ -38,7 +38,7 @@ Automatically detects existing content and enhances it without losing original i
 
 | Category | Profile Widgets | Project Widgets |
 |----------|----------------|-----------------|
-| **Stats** | GitHub Stats, Top Languages, Streak | GitHub Stats (repo), Last Commit, Personal Stats |
+| **Stats** | GitHub Stats, Top Languages, Streak | GitHub Stats (repo), Last Commit |
 | **Badges** | Shields.io, Profile Trophy, Skills | Version, Downloads, License |
 | **Social** | Twitter, LinkedIn, Spotify | - |
 | **CI/CD** | - | Build Status, Tests, Coverage |
@@ -118,13 +118,6 @@ Project READMEs have different needs than profiles. Use these widgets to showcas
 **GitHub Stats (for any repo):**
 ```markdown
 [![GitHub Stats](https://github-readme-stats.vercel.app/api?username=YOUR_USERNAME&repo=YOUR_REPO&theme=radical&hide_border=true&show_icons=true)](https://github.com/anuraghazra/github-readme-stats)
-```
-
-**Personal Stats (your overall GitHub activity):**
-```markdown
-[![GitHub Stats](https://github-readme-stats.vercel.app/api?username=YOUR_USERNAME&theme=radical&hide_border=true&show_icons=true)](https://github.com/anuraghazra/github-readme-stats)
-[![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=YOUR_USERNAME&layout=compact&theme=radical&hide_border=true)](https://github.com/anuraghazra/github-readme-stats)
-[![GitHub Streak](https://streak-stats.demolab.com/?user=YOUR_USERNAME&theme=radical&hide_border=true)](https://git.io/streak-stats)
 ```
 
 **Last Commit Activity:**
@@ -260,7 +253,6 @@ Choose based on README type and goals:
 - **Package info**: Version + Downloads + License
 - **CI/CD**: Build status + Tests + Coverage
 - **Quality**: CodeQL + Linter + Bundle size
-- **Your stats**: Personal GitHub Stats + Top Languages + Streak (showcase your activity)
 - **Social proof**: Stars + Forks + Contributors
 - **Quick start**: Installation + Usage code snippets
 
