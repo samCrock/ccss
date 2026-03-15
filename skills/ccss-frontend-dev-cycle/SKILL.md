@@ -1,5 +1,5 @@
 ---
-name: "Frontend Dev Cycle"
+name: "ccss-frontend-dev-cycle"
 description: "Iterative frontend development loop using Playwright for visual testing and feedback. Use when developing UI features, iterating on designs, or performing visual QA on frontend applications."
 ---
 

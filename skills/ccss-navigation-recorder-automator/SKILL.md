@@ -1,5 +1,5 @@
 ---
-name: "Navigation Recorder Automator"
+name: "ccss-navigation-recorder-automator"
 description: "Uses Playwright's built-in codegen and trace viewing to record user navigation and extract automation patterns. Use when creating test automation from browser sessions, recording user flows, or generating navigation tests."
 ---
 
