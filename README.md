@@ -44,13 +44,6 @@ mkdir skills/ccss-my-new-skill
 
 Skills in `skills/` are automatically available to Claude Code via `~/.claude/skills/`.
 
-## My GitHub Stats
-
-<p align="center">
-  <img src="https://github-readme-stats.vercel.app/api?username=samCrock&show_icons=true&theme=radical&hide_border=true" height="180" alt="stats" />
-  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=samCrock&layout=compact&theme=radical&hide_border=true" height="180" alt="languages" />
-</p>
-
 ---
 
 ⭐️ From [samCrock](https://github.com/samCrock)
