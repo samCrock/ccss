@@ -1,6 +1,6 @@
 ---
-name: "CCSS Onboarding"
-description: "Onboarding guide for claude-code-sam-setup (ccss) repository. Use when setting up the repo, adding new skills, or understanding the monorepo structure with independent git versioning per skill."
+name: "ccss-onboarding"
+description: "Onboarding guide for the CCSS repository. Use when setting up the repo, adding new skills, or understanding the structure."
 ---
 
 # CCSS Onboarding
@@ -13,56 +13,42 @@ description: "Onboarding guide for claude-code-sam-setup (ccss) repository. Use 
 
 ```
 ccss/
-├── skills/                    ← Individual skill repos (each with own git)
-│   ├── ccss-onboarding/       ← This skill!
-│   ├── navigation-recorder-automator/
+├── skills/                    ← All skills in one repo
+│   ├── ccss-onboarding/      ← This skill!
+│   ├── ccss-frontend-dev-cycle/
+│   ├── ccss-navigation-recorder-automator/
+│   ├── ccss-enrich-github-readme/
 │   └── ...more skills
 ├── docs/                      ← Shared documentation
 ├── resources/                 ← Shared templates, configs
 └── README.md                  ← Entry point
 ```
 
-## Key Concept: Independent Git Versioning
+## Key Concept: Single Repository
 
-Each skill/agent in `skills/` is its own git repository with:
-- Own `.git` history
-- Own GitHub remote (e.g., `https://github.com/youruser/navigation-recorder-automator`)
-- Own versioning (semantic release, etc.)
-
-The central repo is just an index that links to everything.
+All skills live in one repository under `skills/`. No submodules - just folders with SKILL.md files.
 
 ---
 
 ## Using Skills in Claude Code
 
-### Option 1: Symlink (Recommended)
+Skills in `skills/` are automatically available to Claude Code via the central `~/.claude/skills/` directory.
 
+To add a new skill:
 ```bash
-# Create symlink from ~/.claude/skills/ to your repo
-ln -s ~/projects/ccss/skills/navigation-recorder-automator ~/.claude/skills/navigation-recorder-automator
-```
-
-### Option 2: Clone Per Skill
-
-```bash
-# Clone directly into ~/.claude/skills/
-cd ~/.claude/skills/
-git clone https://github.com/youruser/navigation-recorder-automator.git
+# Create or copy skill folder to skills/
+mkdir -p skills/my-new-skill
 ```
 
 ---
 
 ## Adding a New Skill
 
-### Step 1: Create the Skill
+### Step 1: Create the Skill Folder
 
 ```bash
 # Create in skills directory
 mkdir -p skills/my-new-skill
-cd skills/my-new-skill
-
-# Initialize git (required for independent versioning)
-git init
 ```
 
 ### Step 2: Create SKILL.md
@@ -79,21 +65,13 @@ description: "What it does. When to use it."
 [Description]
 ```
 
-### Step 3: Create GitHub Remote
-
-Use the GitHub MCP to create a repo, then:
+### Step 3: Commit to Git
 
 ```bash
-# Add remote and push
-git remote add origin https://github.com/youruser/my-new-skill.git
-git add .
-git commit -m "Initial commit"
-git push -u origin main
+git add skills/my-new-skill/
+git commit -m "feat: add my-new-skill"
+git push
 ```
-
-### Step 4: Update Central Index
-
-Add your skill to the main README.md with a link.
 
 ---
 
@@ -102,37 +80,26 @@ Add your skill to the main README.md with a link.
 ### Local Development
 
 1. **Make changes** in `skills/my-skill/`
-2. **Commit locally:**
+2. **Commit:**
    ```bash
-   cd skills/my-skill
-   git add .
+   git add skills/my-skill/
    git commit -m "feat: add new feature"
    ```
-3. **Test locally** (symlink to ~/.claude/skills/)
-
-### Push to Remote
-
-```bash
-cd skills/my-skill
-git push origin main
-```
-
-### Sync Across Machines
-
-```bash
-# Pull latest from remote
-git pull origin main
-```
+3. **Push:**
+   ```bash
+   git push
+   ```
 
 ---
 
 ## Repository List
 
-| Skill | Description | Remote |
-|-------|-------------|--------|
-| ccss-onboarding | Repo onboarding guide | [GitHub](https://github.com/SamLo/ccss-onboarding) |
-| navigation-recorder-automator | Record & replay navigation | [GitHub](https://github.com/SamLo/navigation-recorder-automator) |
-| frontend-dev-cycle | Iterative frontend dev with Playwright E2E testing | [GitHub](https://github.com/SamLo/frontend-dev-cycle) |
+| Skill | Description |
+|-------|-------------|
+| ccss-onboarding | Repo onboarding guide |
+| ccss-frontend-dev-cycle | Iterative frontend dev with Playwright E2E testing |
+| ccss-navigation-recorder-automator | Record & replay navigation |
+| ccss-enrich-github-readme | Enrich GitHub README (profiles & projects) |
 
 ---
 
@@ -141,73 +108,21 @@ git pull origin main
 ### Skill Not Appearing in Claude
 
 **Check:**
-1. Is it in `~/.claude/skills/`?
+1. Is it in `skills/` folder?
 2. Does it have a valid `SKILL.md`?
 3. Did you restart Claude Code?
 
 ```bash
-# Verify symlink
-ls -la ~/.claude/skills/
-
-# Or check cloned repo
-cd ~/.claude/skills/navigation-recorder-automator
-cat SKILL.md | head -5
-```
-
-### Git Push Fails
-
-**Solution:**
-```bash
-# Check remote
-git remote -v
-
-# Set correct remote
-git remote set-url origin https://github.com/youruser/repo-name.git
-```
-
-### Merge Conflicts in Subtree
-
-Since each skill is independent, you shouldn't get subtree merge conflicts. If you do:
-```bash
-# Resolve in the skill's own directory
-cd skills/my-skill
-git merge origin/main
-# Fix conflicts, then
-git commit
-git push
+# List skills
+ls skills/
 ```
 
 ---
 
 ## Resources
 
-- [Git Subtrees](https://docs.github.com/en/get-started/using-git/about-git-replace)
 - [Claude Code Skills](https://docs.claude.com/en/docs/agents-and-tools/agent-skills)
-- [GitHub MCP](https://github.com/github/copilot-in-the-cli)
 
 ---
 
-## Maintenance
-
-### Update All Skills
-
-```bash
-# Pull latest for each skill
-for dir in skills/*/; do
-  echo "Updating $dir"
-  cd "$dir"
-  git pull origin main
-  cd ../..
-done
-```
-
-### Backup
-
-Since each skill is on GitHub, your work is backed up. To backup everything at once:
-```bash
-git clone --recursive https://github.com/youruser/ccss.git
-```
-
----
-
-**Last Updated:** 2024-01-15
+**Last Updated:** 2026-03-15
