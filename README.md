@@ -1,35 +1,56 @@
 # CCSS - Claude Code Sam Setup
 
-Monorepo for personal AI assistant workflows and skills. Each skill has independent git versioning via submodules.
+[![License](https://img.shields.io/github/license/samCrock/ccss?style=flat&logo=github)](LICENSE)
+![Last Commit](https://img.shields.io/github/last-commit/samCrock/ccss?logo=github)
+![Commit Activity](https://img.shields.io/github/commit-activity/m/samCrock/ccss?logo=github)
+
+Monorepo for personal AI assistant workflows and skills. Each skill lives in the `skills/` folder with consistent naming.
 
 ## Structure
 
 ```
 ccss/
 ├── skills/
-│   ├── frontend-dev-cycle/        → GitHub repo with own versioning
-│   └── navigation-recorder-automator/ → GitHub repo with own versioning
+│   ├── ccss-onboarding/                    # This repo's guide
+│   ├── ccss-frontend-dev-cycle/             # Iterative frontend dev
+│   ├── ccss-navigation-recorder-automator/  # Record & replay navigation
+│   └── ccss-enrich-github-readme/          # README enrichment
 └── README.md
 ```
 
 ## Skills
 
-| Skill | Remote | Description |
-|-------|--------|-------------|
-| frontend-dev-cycle | [GitHub](https://github.com/samCrock/frontend-dev-cycle) | Iterative frontend dev with Playwright E2E |
-| navigation-recorder-automator | [GitHub](https://github.com/samCrock/navigation-recorder-automator) | Record & replay navigation with Playwright |
+| Skill | Description |
+|-------|-------------|
+| [ccss-onboarding](skills/ccss-onboarding/) | Repo onboarding guide |
+| [ccss-frontend-dev-cycle](skills/ccss-frontend-dev-cycle/) | Iterative frontend dev with Playwright E2E |
+| [ccss-navigation-recorder-automator](skills/ccss-navigation-recorder-automator/) | Record & replay navigation with Playwright |
+| [ccss-enrich-github-readme](skills/ccss-enrich-github-readme/) | Enrich GitHub README (profiles & projects) |
 
 ## Adding a New Skill
 
 ```bash
-# Clone into skills/
-git clone https://github.com/samCrock/my-new-skill.git skills/my-new-skill
+# Create skill folder
+mkdir skills/ccss-my-new-skill
+
+# Add SKILL.md with frontmatter:
+# ---
+# name: "ccss-my-new-skill"
+# description: "What it does. When to use it."
+# ---
 ```
 
 ## Usage
 
-Symlink to `~/.claude/skills/`:
+Skills in `skills/` are automatically available to Claude Code via `~/.claude/skills/`.
 
-```bash
-ln -s ~/ccss/skills/frontend-dev-cycle ~/.claude/skills/frontend-dev-cycle
-```
+## My GitHub Stats
+
+<p align="center">
+  <img src="https://github-readme-stats.vercel.app/api?username=samCrock&show_icons=true&theme=radical&hide_border=true" height="180" alt="stats" />
+  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=samCrock&layout=compact&theme=radical&hide_border=true" height="180" alt="languages" />
+</p>
+
+---
+
+⭐️ From [samCrock](https://github.com/samCrock)
