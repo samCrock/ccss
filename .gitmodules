@@ -1,0 +1,9 @@
+[submodule "skills/ccss-onboarding"]
+	path = skills/ccss-onboarding
+	url = https://github.com/samCrock/ccss-onboarding.git
+[submodule "skills/frontend-dev-cycle"]
+	path = skills/frontend-dev-cycle
+	url = https://github.com/samCrock/frontend-dev-cycle.git
+[submodule "skills/navigation-recorder-automator"]
+	path = skills/navigation-recorder-automator
+	url = https://github.com/samCrock/navigation-recorder-automator.git
