@@ -1,0 +1,21 @@
+{
+  "name": "ccss",
+  "description": "CCSS: Collection of Claude Code skills for frontend development, component orchestration, audio feedback, and more",
+  "version": "1.0.0",
+  "author": {
+    "name": "Sam Lo",
+    "email": "sam@example.com"
+  },
+  "homepage": "https://github.com/samCrock/ccss",
+  "repository": "https://github.com/samCrock/ccss",
+  "license": "MIT",
+  "keywords": [
+    "skills",
+    "frontend",
+    "components",
+    "soundboard",
+    "playwright",
+    "audio",
+    "notifications"
+  ]
+}

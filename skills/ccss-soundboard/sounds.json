@@ -1,0 +1,7 @@
+{
+  "Elicitation": { "sound": "pop", "checkFocus": true },
+  "Stop": "rizz",
+  "StopFailure": "faa",
+  "SessionStart": "yeahbuddy",
+  "SessionEnd": "lightweight"
+}
