@@ -546,6 +546,85 @@ await page.evaluate(() => {
 });
 ```
 
+## Phase 8: WCAG Accessibility Scoring
+
+For every foreground/background color pair found in interactive elements and text, calculate WCAG contrast ratio and grade it.
+
+### 8.1 Collect Text/Interactive Element Color Pairs
+
+```javascript
+await page.evaluate(() => {
+  const pairs = [];
+  const elements = document.querySelectorAll('p, h1, h2, h3, h4, h5, h6, span, a, button, input, label, li, td, th');
+  elements.forEach(el => {
+    const style = window.getComputedStyle(el);
+    const fg = style.color;
+    const bg = style.backgroundColor;
+    if (fg && bg && fg !== 'rgba(0, 0, 0, 0)' && bg !== 'rgba(0, 0, 0, 0)') {
+      pairs.push({ selector: el.tagName + (el.className ? '.' + el.className.split(' ')[0] : ''), fg, bg });
+    }
+  });
+  return pairs;
+});
+```
+
+### 8.2 WCAG Contrast Ratio Formula
+
+```
+WCAG Contrast Ratio (relative luminance):
+L = 0.2126 * R + 0.7152 * G + 0.0722 * B
+(convert sRGB to linear: if sRGB > 0.03928, ((sRGB+0.055)/1.055)^2.4, else sRGB/12.92)
+Contrast = (L1 + 0.05) / (L2 + 0.05)  where L1 = lighter, L2 = darker
+
+WCAG thresholds:
+- AA Normal text: 4.5:1
+- AA Large text: 3:1
+- AAA Normal text: 7:1
+- AAA Large text: 4.5:1
+- AA UI components: 3:1
+```
+
+### 8.3 Contrast Ratio Calculator
+
+```javascript
+await page.evaluate(() => {
+  const toLinear = (c) => {
+    const s = c.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+    if (!s) return 0;
+    const [r,g,b] = [parseInt(s[1]),parseInt(s[2]),parseInt(s[3])].map(v => {
+      v /= 255;
+      return v > 0.03928 ? Math.pow((v+0.055)/1.055, 2.4) : v/12.92;
+    });
+    return 0.2126*r + 0.7152*g + 0.0722*b;
+  };
+  const contrast = (fg, bg) => {
+    const l1 = Math.max(toLinear(fg), toLinear(bg));
+    const l2 = Math.min(toLinear(fg), toLinear(bg));
+    return (l1 + 0.05) / (l2 + 0.05);
+  };
+  // Get pairs from Phase 8.1 and score each
+  return { totalPairs: 0, passing: 0, failing: 0, score: '0%' };
+});
+```
+
+### 8.4 Accessibility Score Report
+
+Present findings as:
+
+```markdown
+## WCAG Accessibility Score
+
+**Overall:** XX% (N/N pairs passing)
+
+| Element | FG | BG | Ratio | AA Normal | AA Large | AAA Normal | AAA Large |
+|---------|----|----|-------|-----------|----------|-------------|-----------|
+| body text | #333 | #fff | 12.6:1 | ✓ | ✓ | ✓ | ✓ |
+| button | #fff | #0066cc | 4.2:1 | ✗ | ✓ | ✗ | ✓ |
+
+**Failing pairs** (below AA 4.5:1):
+1. [list failing selectors with their ratios and suggested fixes]
+```
+
 ## Output Format
 
 Produce a structured recreation guide:
