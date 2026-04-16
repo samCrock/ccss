@@ -908,6 +908,89 @@ Before writing the file, substitute placeholders with actual extracted data:
 - `{score}` — from Phase 8
 - `{overall}/100` and `{grade}` — from Phase 9
 
+## Phase 12: Responsive Multi-Breakpoint Capture
+
+Test the site at 4 standard viewports and record exactly what changes per breakpoint.
+
+### Viewport Matrix
+
+| Label | Width | Height | Typical Device |
+|-------|-------|--------|----------------|
+| Mobile | 375 | 812 | iPhone |
+| Tablet | 768 | 1024 | iPad |
+| Desktop | 1280 | 800 | Laptop |
+| Wide | 1920 | 1080 | Desktop |
+
+### Capture Strategy
+
+For each viewport, navigate, wait for idle, then extract:
+
+```javascript
+const viewports = [
+  { label: 'mobile', width: 375, height: 812 },
+  { label: 'tablet', width: 768, height: 1024 },
+  { label: 'desktop', width: 1280, height: 800 },
+  { label: 'wide', width: 1920, height: 1080 },
+];
+
+for (const vp of viewports) {
+  await page.setViewportSize({ width: vp.width, height: vp.height });
+  await page.waitForLoadState('networkidle');
+  await page.screenshot({ path: `screenshot-${vp.label}.png` });
+  const vpData = await page.evaluate(() => {
+    return {
+      navDisplay: window.getComputedStyle(document.querySelector('nav') || document.body).display,
+      maxWidth: window.getComputedStyle(document.body).maxWidth,
+      gridCols: window.getComputedStyle(document.querySelector('[class*="grid"]') || document.body).gridTemplateColumns,
+      hamburgerVisible: !![document.querySelector('[class*="hamburger"]')],
+      h1FontSize: window.getComputedStyle(document.querySelector('h1') || document.body).fontSize,
+    };
+  });
+  console.log(vp.label, JSON.stringify(vpData));
+}
+```
+
+### Breakpoint Diff Report
+
+Present as:
+
+```markdown
+## Responsive Behavior
+
+### Breakpoint Changes (4 viewports, N changes detected)
+
+| Property | 375px | 768px | 1280px | 1920px |
+|----------|-------|-------|--------|--------|
+| Nav display | none (hamburger) | flex | flex | flex |
+| Grid columns | 1 | 2 | 3 | 4 |
+| H1 font size | 32px | 40px | 48px | 56px |
+| Container max-width | 100% | 720px | 1200px | 1400px |
+| Sidebar | hidden | visible | visible | visible |
+
+### Identified Breakpoints
+- **Mobile → Tablet (768px):** Nav hamburger → full nav, grid 1 → 2 cols
+- **Tablet → Desktop (1280px):** Grid 2 → 3 cols, H1 grows
+- **Desktop → Wide (1920px):** Container widens, grid stays 3 cols
+```
+
+### Responsive Component-Specific Capture
+
+For nav, grid, and card components, record computed styles at each viewport:
+
+```javascript
+await page.evaluate(() => {
+  const nav = document.querySelector('nav') || document.querySelector('[role="navigation"]') || document.body;
+  const style = window.getComputedStyle(nav);
+  return {
+    display: style.display,
+    position: style.position,
+    flexDirection: style.flexDirection,
+    visibility: style.visibility,
+    zIndex: style.zIndex,
+  };
+});
+```
+
 ## Output Format
 
 Produce a structured recreation guide:
