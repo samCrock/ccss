@@ -34,6 +34,268 @@ digraph component_reengineering {
 }
 ```
 
+## Phase 0: Design Token Extraction
+
+Run immediately after page load (before scrolling or interacting). Uses `page.evaluate()` to walk the DOM and collect all computed styles.
+
+### 0.1 Collect All Computed Styles
+
+Collect raw design tokens from every element on the page:
+
+```javascript
+await page.evaluate(() => {
+  const elements = document.querySelectorAll('*');
+  const tokens = {
+    colors: new Set(),
+    fontFamilies: new Set(),
+    fontSizes: new Set(),
+    fontWeights: new Set(),
+    lineHeights: new Set(),
+    spacing: new Set(),
+    borderRadii: new Set(),
+    boxShadows: new Set(),
+    cssVars: new Map(),
+    gradients: [],
+    zIndexes: new Set(),
+    transitions: new Set(),
+  };
+
+  elements.forEach(el => {
+    const style = window.getComputedStyle(el);
+    ['color', 'backgroundColor', 'borderColor', 'boxShadow'].forEach(prop => {
+      const val = style[prop];
+      if (val && val !== 'rgba(0, 0, 0, 0)' && val !== 'transparent') {
+        tokens.colors.add(val);
+      }
+    });
+    tokens.fontFamilies.add(style.fontFamily);
+    tokens.fontSizes.add(style.fontSize);
+    tokens.fontWeights.add(style.fontWeight);
+    tokens.lineHeights.add(style.lineHeight);
+    ['padding', 'margin', 'gap'].forEach(prop => {
+      const val = style[prop];
+      if (val && val !== '0px') tokens.spacing.add(val);
+    });
+    tokens.borderRadii.add(style.borderRadius);
+    if (style.boxShadow && style.boxShadow !== 'none') {
+      tokens.boxShadows.add(style.boxShadow);
+    }
+    for (let i = 0; i < style.length; i++) {
+      const prop = style[i];
+      if (prop.startsWith('--')) {
+        tokens.cssVars.set(prop, style.getPropertyValue(prop));
+      }
+    }
+    if (style.backgroundImage.includes('gradient')) {
+      tokens.gradients.push({ selector: '', value: style.backgroundImage });
+    }
+    if (style.zIndex && style.zIndex !== 'auto') {
+      tokens.zIndexes.add(style.zIndex);
+    }
+    if (style.transition && style.transition !== 'none') {
+      tokens.transitions.add(style.transition);
+    }
+  });
+
+  return Object.fromEntries(
+    Object.entries(tokens).map(([k, v]) => [k, v instanceof Set ? [...v] : v instanceof Map ? Object.fromEntries(v) : v])
+  );
+});
+```
+
+### 0.2 Deduplicate and Classify Colors
+
+```javascript
+await page.evaluate(() => {
+  const toHex = (c) => {
+    if (!c || c.startsWith('#')) return c;
+    const m = c.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+    if (!m) return c;
+    return '#' + [m[1],m[2],m[3]].map(x => parseInt(x).toString(16).padStart(2,'0')).join('');
+  };
+  const colors = [...new Set([...document.querySelectorAll('*')].map(el =>
+    toHex(window.getComputedStyle(el).color)
+  ).filter(c => c))];
+  return { colors };
+});
+```
+
+### 0.3 Extract Typography Scale
+
+```javascript
+await page.evaluate(() => {
+  const elements = [...document.querySelectorAll('h1,h2,h3,h4,h5,h6,p,span,button,input,label,li,td,th')]
+    .map(el => ({
+      tag: el.tagName.toLowerCase(),
+      fontSize: window.getComputedStyle(el).fontSize,
+      fontFamily: window.getComputedStyle(el).fontFamily,
+      fontWeight: window.getComputedStyle(el).fontWeight,
+      lineHeight: window.getComputedStyle(el).lineHeight,
+      letterSpacing: window.getComputedStyle(el).letterSpacing,
+    }));
+  const scale = [...new Map(elements.map(e => [e.fontSize, e])).values()];
+  return scale.sort((a,b) => parseFloat(a.fontSize) - parseFloat(b.fontSize));
+});
+```
+
+### 0.4 Extract CSS Variables (Full Map)
+
+```javascript
+await page.evaluate(() => {
+  const vars = {};
+  document.querySelectorAll('*').forEach(el => {
+    const style = window.getComputedStyle(el);
+    for (let i = 0; i < style.length; i++) {
+      const prop = style[i];
+      if (prop.startsWith('--')) {
+        vars[prop] = style.getPropertyValue(prop).trim();
+      }
+    }
+  });
+  return vars;
+});
+```
+
+### 0.5 Detect Design System Base Unit
+
+```javascript
+await page.evaluate(() => {
+  const spacingVals = [...new Set([...document.querySelectorAll('*')].map(el => {
+    const s = window.getComputedStyle(el);
+    const m = s.margin.match(/(\d+)px/);
+    return m ? parseInt(m[1]) : null;
+  }).filter(Boolean))];
+  const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
+  const base = spacingVals.length > 1 ? spacingVals.reduce(gcd) : 4;
+  return base;
+});
+```
+
+### 0.6 Extract Grid and Flex Layout Patterns
+
+```javascript
+await page.evaluate(() => {
+  const layouts = { grids: 0, flexContainers: 0, gaps: new Set(), gridColumns: new Set(), containerWidths: new Set() };
+  document.querySelectorAll('*').forEach(el => {
+    const style = window.getComputedStyle(el);
+    if (style.display === 'grid') {
+      layouts.grids++;
+      layouts.gridColumns.add(style.gridTemplateColumns);
+      layouts.gaps.add(style.gap);
+    }
+    if (style.display === 'flex') {
+      layouts.flexContainers++;
+      layouts.gaps.add(style.gap);
+    }
+    if (style.maxWidth && style.maxWidth !== 'none') {
+      layouts.containerWidths.add(style.maxWidth);
+    }
+  });
+  return {
+    grids: layouts.grids,
+    flexContainers: layouts.flexContainers,
+    uniqueGaps: [...layouts.gaps],
+    uniqueContainerWidths: [...layouts.containerWidths],
+  };
+});
+```
+
+### 0.7 Extract Gradients
+
+```javascript
+await page.evaluate(() => {
+  const gradients = [];
+  document.querySelectorAll('*').forEach(el => {
+    const bg = window.getComputedStyle(el).backgroundImage;
+    if (bg.includes('gradient')) {
+      gradients.push({ selector: '', value: bg });
+    }
+  });
+  return [...new Map(gradients.map(g => [g.value, g])).values()];
+});
+```
+
+### 0.8 Extract Z-Index Map
+
+```javascript
+await page.evaluate(() => {
+  const zLayers = { base: [], sticky: [], dropdown: [], modal: [], overlay: [], tooltip: [] };
+  document.querySelectorAll('*').forEach(el => {
+    const z = window.getComputedStyle(el).zIndex;
+    const pos = window.getComputedStyle(el).position;
+    if (z && z !== 'auto') {
+      const layer = pos === 'fixed' || pos === 'sticky' ? 'sticky' : parseInt(z) > 1000 ? 'overlay' : 'base';
+      zLayers[layer].push({ element: el.tagName, zIndex: z });
+    }
+  });
+  return zLayers;
+});
+```
+
+### 0.9 Extract Inline SVGs
+
+```javascript
+await page.evaluate(() => {
+  const svgs = [...document.querySelectorAll('svg')].map(s => ({
+    viewBox: s.getAttribute('viewBox'),
+    fill: window.getComputedStyle(s).fill,
+    stroke: window.getComputedStyle(s).stroke,
+    size: `${s.getBoundingClientRect().width}x${s.getBoundingClientRect().height}`,
+    d: s.querySelector('path')?.getAttribute('d')?.slice(0, 50),
+  }));
+  return [...new Map(svgs.map(s => [s.d, s])).values()];
+});
+```
+
+### 0.10 Extract Font Sources
+
+```javascript
+await page.evaluate(() => {
+  const fonts = new Set();
+  document.querySelectorAll('*').forEach(el => {
+    fonts.add(window.getComputedStyle(el).fontFamily);
+  });
+  const googleFonts = [...document.querySelectorAll('link[href*="fonts.googleapis"]')]
+    .map(l => l.href).filter(Boolean);
+  return { fontFamilies: [...fonts], googleFonts };
+});
+```
+
+### 0.11 Extract Image Style Patterns
+
+```javascript
+await page.evaluate(() => {
+  const images = [...document.querySelectorAll('img')].map(img => ({
+    src: img.src,
+    aspectRatio: `${img.getBoundingClientRect().width}/${img.getBoundingClientRect().height}`,
+    objectFit: window.getComputedStyle(img).objectFit,
+    borderRadius: window.getComputedStyle(img).borderRadius,
+    filter: window.getComputedStyle(img).filter,
+  }));
+  return images;
+});
+```
+
+### 0.12 Accumulate Tokens
+
+After running all Phase 0 extractions, accumulate these tokens for use in later phases:
+
+```
+Design Tokens Collected:
+- colors: N unique values (primary, secondary, neutral)
+- typography: N font sizes (h1–body scale)
+- spacing base unit: Npx
+- border radii: N unique values
+- box shadows: N unique values
+- CSS variables: N custom properties
+- gradients: N unique gradients
+- z-index layers: N layers mapped
+- SVG icons: N unique icons
+- font sources: Google Fonts + fallbacks
+- image patterns: N images (aspect ratios)
+- layout: N grids, N flex containers, N container widths
+```
+
 ## Phase 1: Page Capture
 
 ### Initial Navigation
