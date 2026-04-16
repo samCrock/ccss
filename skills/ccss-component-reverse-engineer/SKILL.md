@@ -625,6 +625,53 @@ Present findings as:
 1. [list failing selectors with their ratios and suggested fixes]
 ```
 
+## Phase 9: Design Quality Scoring
+
+Rate the site's design across 7 categories. Score each 0-100, then average for an overall grade.
+
+### Scoring Criteria
+
+| Category | What to Score | Score Calculation |
+|----------|--------------|-------------------|
+| **Color Discipline** | Unique colors used (5-15 = 100, >30 = 0) | clamp(100 - (uniqueColors - 15) * 5, 0, 100) |
+| **Typography** | Consistent type scale, Google Fonts used | Count unique fontFamilies; 1-3 = 100, 4-6 = 60, 7+ = 20 |
+| **Spacing System** | Consistent base unit (4/8px grid = 100) | Based on GCD of spacing values |
+| **Shadows** | Shadow discipline (1-3 unique = 100, >8 = 0) | clamp(100 - (uniqueShadows - 3) * 20, 0, 100) |
+| **Border Radii** | Consistent radii (1-5 unique = 100, >15 = 0) | clamp(100 - (uniqueRadii - 5) * 8, 0, 100) |
+| **Accessibility** | WCAG AA passing pairs | % of pairs passing AA 4.5:1 |
+| **Tokenization** | CSS variables used for design values | Count vars starting with --; >20 = 100, >10 = 60, <=10 = 20 |
+
+### Grade Scale
+
+```
+A:  85-100  (excellent)
+B:  70-84   (good)
+C:  55-69   (average)
+D:  40-54   (below average)
+F:   0-39   (poor)
+```
+
+### Score Presentation
+
+```markdown
+## Design Quality Score: 68/100 (Grade: C)
+
+| Category | Score | Bar |
+|----------|-------|-----|
+| Color Discipline     | 80 | ████████░░░░░░░░░░░ |
+| Typography           | 60 | ██████░░░░░░░░░░░░░ |
+| Spacing System       | 100| ████████████████████|
+| Shadows              | 40 | ████░░░░░░░░░░░░░░░ |
+| Border Radii         | 70 | ███████░░░░░░░░░░░░ |
+| Accessibility        | 94 | ████████████░░░░░░░ |
+| Tokenization         | 50 | █████░░░░░░░░░░░░░░ |
+
+**Top Issues:**
+1. Too many unique box shadows (8 found — consolidate to 3)
+2. 6 font families — limit to 3 max
+3. 4 failing WCAG contrast pairs
+```
+
 ## Output Format
 
 Produce a structured recreation guide:
