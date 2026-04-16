@@ -991,6 +991,89 @@ await page.evaluate(() => {
 });
 ```
 
+## Phase 13: Dark Mode Detection
+
+Detect whether the site supports dark mode and extract the dark color palette.
+
+### 13.1 Check for Dark Mode Indicators
+
+```javascript
+await page.evaluate(() => {
+  const styleSheets = [...document.styleSheets];
+  const mediaQueries = [];
+  styleSheets.forEach(ss => {
+    try {
+      [...ss.cssRules].forEach(rule => {
+        if (rule.type === CSSRule.MEDIA_RULE && rule.conditionText?.includes('dark')) {
+          mediaQueries.push(rule.conditionText);
+        }
+      });
+    } catch(e) {}
+  });
+
+  const darkClasses = [...document.querySelectorAll('[class*="dark"]')];
+  const darkVars = [...document.querySelectorAll('*')].map(el => {
+    const style = window.getComputedStyle(el);
+    for (let i = 0; i < style.length; i++) {
+      const p = style[i];
+      if (p.includes('dark') || p.includes('--dark')) return p;
+    }
+  }).filter(Boolean);
+
+  return { mediaQueries, darkClasses: darkClasses.length, darkVarNames: [...new Set(darkVars)] };
+});
+```
+
+### 13.2 Simulate Dark Mode
+
+```javascript
+// Force dark mode by injecting CSS
+await page.evaluate(() => {
+  const style = document.createElement('style');
+  style.textContent = '@media (prefers-color-scheme: dark) { body { background: #111; color: #fff; } }';
+  document.head.appendChild(style);
+});
+await page.waitForTimeout(500);
+await page.screenshot({ path: 'screenshot-dark.png' });
+```
+
+### 13.3 Extract Dark Palette
+
+```javascript
+await page.evaluate(() => {
+  const darkColors = new Set();
+  [...document.querySelectorAll('*')].forEach(el => {
+    const s = window.getComputedStyle(el);
+    if (s.backgroundColor !== 'rgba(0, 0, 0, 0)' && s.backgroundColor !== 'transparent') {
+      darkColors.add(s.backgroundColor);
+    }
+    if (s.color && s.color !== 'rgba(0, 0, 0, 0)') {
+      darkColors.add(s.color);
+    }
+  });
+  return [...darkColors];
+});
+```
+
+### 13.4 Dark Mode Report
+
+```markdown
+## Dark Mode Support
+
+**Detected:** Yes/No
+
+**Dark Mode Mechanism:**
+- [ ] `prefers-color-scheme: dark` media query found
+- [ ] `.dark` class toggled on body
+- [ ] `[data-theme="dark"]` attribute
+
+**Dark Palette ({n} colors):**
+| Light | Dark | Usage |
+|-------|------|-------|
+| #ffffff | #111111 | Background |
+| #0066CC | #3388EE | Primary |
+```
+
 ## Output Format
 
 Produce a structured recreation guide:
