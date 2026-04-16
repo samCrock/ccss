@@ -672,6 +672,158 @@ F:   0-39   (poor)
 3. 4 failing WCAG contrast pairs
 ```
 
+## Phase 10: Multi-Format Output Generation
+
+Using the tokens collected in Phase 0, generate output files via `Write` tool. Run after all extraction phases are complete.
+
+### 10.1 Output File Naming Convention
+
+```
+{url-slug}-design-language.md      (already handled by existing skill)
+{url-slug}-design-tokens.json
+{url-slug}-tailwind.config.js
+{url-slug}-variables.css
+{url-slug}-figma-variables.json
+{url-slug}-theme.js
+```
+
+URL slug: `stripe.com` → `stripe-com`
+
+### 10.2 W3C Design Tokens JSON
+
+```json
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "color": {
+    "primary": { "$value": "#0066CC", "$type": "color" },
+    "secondary": { "$value": "#555555", "$type": "color" }
+  },
+  "spacing": {
+    "xs": { "$value": "4px", "$type": "dimension" },
+    "sm": { "$value": "8px", "$type": "dimension" },
+    "md": { "$value": "16px", "$type": "dimension" }
+  },
+  "typography": {
+    "fontFamily": { "$value": "Inter, sans-serif", "$type": "fontFamily" },
+    "fontSize": { "$value": "16px", "$type": "dimension" }
+  },
+  "shadow": {
+    "sm": { "$value": "0 1px 2px rgba(0,0,0,0.1)", "$type": "shadow" }
+  }
+}
+```
+
+### 10.3 Tailwind CSS Config
+
+```javascript
+// tailwind.config.js
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  theme: {
+    extend: {
+      colors: {
+        primary: '#0066CC',
+        secondary: '#555555',
+      },
+      fontFamily: {
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+      },
+      spacing: {
+        xs: '4px', sm: '8px', md: '16px', lg: '24px', xl: '32px',
+      },
+      borderRadius: {
+        sm: '2px', md: '4px', lg: '8px', xl: '16px',
+      },
+      boxShadow: {
+        sm: '0 1px 2px rgba(0,0,0,0.1)',
+        md: '0 4px 8px rgba(0,0,0,0.15)',
+      },
+    },
+  },
+};
+```
+
+### 10.4 CSS Custom Properties
+
+```css
+:root {
+  /* Colors */
+  --color-primary: #0066CC;
+  --color-secondary: #555555;
+  /* Typography */
+  --font-family: 'Inter', system-ui, sans-serif;
+  --font-size-base: 16px;
+  /* Spacing */
+  --spacing-unit: 4px;
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.1);
+  /* Radii */
+  --radius-sm: 2px;
+  --radius-md: 4px;
+}
+```
+
+### 10.5 Figma Variables JSON
+
+```json
+{
+  "version": "1.0",
+  "variables": {
+    "colors": [
+      { "name": "primary", "values": { "light": "#0066CC", "dark": "#3388EE" } }
+    ]
+  },
+  "variableCollections": [
+    {
+      "name": "Primitive",
+      "modes": [{ "name": "Mode 1" }],
+      "variables": []
+    }
+  ]
+}
+```
+
+### 10.6 React Theme (JavaScript)
+
+```javascript
+// theme.js
+export const theme = {
+  colors: {
+    primary: '#0066CC',
+    secondary: '#555555',
+  },
+  fonts: {
+    sans: "'Inter', system-ui, sans-serif",
+    mono: "'Fira Code', monospace",
+  },
+  spacing: [4, 8, 16, 24, 32, 48, 64],
+  radii: [2, 4, 8, 16],
+  shadows: [
+    '0 1px 2px rgba(0,0,0,0.1)',
+    '0 4px 8px rgba(0,0,0,0.15)',
+  ],
+};
+```
+
+### 10.7 Write All Files
+
+Create output directory and write files via `Write` tool:
+
+```bash
+# Create output directory
+mkdir -p design-extract
+```
+
+Then write each file using the templates above. Substitute placeholder values (e.g., `#0066CC`) with actual values extracted in Phase 0.
+
+### 10.8 Integration with designlang
+
+After running Phase 0 through Phase 10, offer the user:
+- The markdown recreation guide (existing output)
+- The design token files (new output)
+- Copy `*-tailwind.config.js` into their project
+- Open `*-preview.html` in browser (from Phase 11)
+
 ## Output Format
 
 Produce a structured recreation guide:
