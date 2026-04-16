@@ -1,6 +1,6 @@
 {
-  "Elicitation": { "sound": "pop", "checkFocus": true },
-  "Stop": "rizz",
+  "Elicitation": "rizz",
+  "Stop": "pop",
   "StopFailure": "faa",
   "SessionStart": "yeahbuddy",
   "SessionEnd": "lightweight"
