@@ -10,7 +10,6 @@ Collection of skills for Claude Code covering frontend development, component or
 | `ccss-navigation-recorder-automator` | Record/replay browser navigation flows |
 | `ccss-component-orchestrator` | Find existing components for a task |
 | `ccss-component-reverse-engineer` | Extract UI components from web pages |
-| `ccss-integrating-react-components` | Generate React component integration docs |
 | `ccss-enrich-github-readme` | Beautify GitHub READMEs with badges |
 | `ccss-soundboard` | Audio notifications for Claude Code hooks |
 
