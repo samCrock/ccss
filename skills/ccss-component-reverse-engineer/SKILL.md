@@ -19,18 +19,40 @@ Reverse-engineer UI components from any URL for recreation. Analyzes visual beha
 
 ```dot
 digraph component_reengineering {
-    "Navigate to URL" [shape=box];
-    "Capture baseline state" [shape=box];
-    "Identify scroll zones" [shape=box];
-    "Document each component" [shape=box];
-    "Analyze interactions" [shape=box];
-    "Produce recreation guide" [shape=box];
+    "URL + viewport" [shape=box];
+    "Phase 0: Token Extraction" [shape=box, style=filled, fillcolor=lightblue];
+    "Phase 1: Page Capture" [shape=box];
+    "Phase 2: Component ID" [shape=box];
+    "Phase 3: Interaction Analysis" [shape=box];
+    "Phase 4: DOM Monitoring" [shape=box];
+    "Phase 5: Component Docs" [shape=box];
+    "Phase 6: Parallax Analysis" [shape=box];
+    "Phase 7: Carousel Analysis" [shape=box];
+    "Phase 8: WCAG Scoring" [shape=box, style=filled, fillcolor=lightgreen];
+    "Phase 9: Design Scoring" [shape=box, style=filled, fillcolor=lightgreen];
+    "Phase 10: Multi-Format Output" [shape=box, style=filled, fillcolor=lightyellow];
+    "Phase 11: HTML Preview" [shape=box, style=filled, fillcolor=lightyellow];
+    "Phase 12: Responsive Capture" [shape=box, style=filled, fillcolor=lightyellow];
+    "Phase 13: Dark Mode" [shape=box, style=filled, fillcolor=lightyellow];
+    "Recreation Guide" [shape=box];
+    "Output Files" [shape=box, style=filled, fillcolor=lightyellow];
 
-    "Navigate to URL" -> "Capture baseline state";
-    "Capture baseline state" -> "Identify scroll zones";
-    "Identify scroll zones" -> "Document each component";
-    "Document each component" -> "Analyze interactions";
-    "Analyze interactions" -> "Produce recreation guide";
+    "URL + viewport" -> "Phase 0: Token Extraction";
+    "Phase 0: Token Extraction" -> "Phase 1: Page Capture";
+    "Phase 1: Page Capture" -> "Phase 2: Component ID";
+    "Phase 2: Component ID" -> "Phase 3: Interaction Analysis";
+    "Phase 3: Interaction Analysis" -> "Phase 4: DOM Monitoring";
+    "Phase 4: DOM Monitoring" -> "Phase 5: Component Docs";
+    "Phase 5: Component Docs" -> "Phase 6: Parallax Analysis";
+    "Phase 6: Parallax Analysis" -> "Phase 7: Carousel Analysis";
+    "Phase 7: Carousel Analysis" -> "Phase 8: WCAG Scoring";
+    "Phase 8: WCAG Scoring" -> "Phase 9: Design Scoring";
+    "Phase 9: Design Scoring" -> "Phase 10: Multi-Format Output";
+    "Phase 10: Multi-Format Output" -> "Phase 11: HTML Preview";
+    "Phase 11: HTML Preview" -> "Phase 12: Responsive Capture";
+    "Phase 12: Responsive Capture" -> "Phase 13: Dark Mode";
+    "Phase 13: Dark Mode" -> "Recreation Guide";
+    "Phase 10: Multi-Format Output" -> "Output Files";
 }
 ```
 
@@ -1129,9 +1151,10 @@ Produce a structured recreation guide:
 
 ## Integration with Other Skills
 
-- **ccss-frontend-dev-cycle** - Use for iterative visual testing
-- **superpowers:writing-plans** - Convert recreation guide into implementation tasks
-- **frontend-design** - For design token extraction
+- **ccss-frontend-dev-cycle** — Use for iterative visual testing after recreation
+- **ccss-component-orchestrator** — Find existing components before reverse engineering
+- **designlang** — Run `designlang <url>` first for full token extraction; use this skill for deep component behavioral analysis
+- **superpowers:writing-plans** — Convert recreation guide into implementation tasks
 
 ## Quick Reference
 
