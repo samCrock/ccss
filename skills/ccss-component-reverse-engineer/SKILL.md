@@ -824,6 +824,90 @@ After running Phase 0 through Phase 10, offer the user:
 - Copy `*-tailwind.config.js` into their project
 - Open `*-preview.html` in browser (from Phase 11)
 
+## Phase 11: Visual HTML Preview
+
+Generate a self-contained `*-preview.html` file that renders all extracted tokens visually for browser-based review.
+
+### HTML Preview Template
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Design Preview: {url}</title>
+  <style>
+    :root {
+      /* CSS vars from Phase 0 */
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-family); padding: 32px; background: #fafafa; }
+    h1 { font-size: 2rem; margin-bottom: 24px; }
+    h2 { font-size: 1.5rem; margin: 24px 0 12px; }
+    section { background: white; padding: 24px; margin-bottom: 16px; border-radius: 8px; box-shadow: var(--shadow-sm); }
+    .swatch { display: inline-block; width: 80px; height: 80px; border-radius: 4px; margin: 4px; vertical-align: middle; }
+    .swatch-label { font-size: 11px; display: block; text-align: center; margin-top: 4px; }
+    .type-sample { margin: 8px 0; }
+    .shadow-sample { width: 80px; height: 40px; background: white; margin: 4px; border-radius: 4px; display: inline-block; }
+    .a11y-pass { color: green; } .a11y-fail { color: red; }
+    table { width: 100%; border-collapse: collapse; }
+    td, th { padding: 8px; border: 1px solid #ddd; text-align: left; }
+    tr.pass { background: #e8f5e9; } tr.fail { background: #ffebee; }
+  </style>
+</head>
+<body>
+  <h1>Design Preview: {url}</h1>
+
+  <section id="colors">
+    <h2>Color Palette ({n} colors)</h2>
+    <!-- Color swatches injected from Phase 0 -->
+  </section>
+
+  <section id="typography">
+    <h2>Typography Scale</h2>
+    <!-- Type scale injected from Phase 0 -->
+  </section>
+
+  <section id="spacing">
+    <h2>Spacing System ({base}px base)</h2>
+    <!-- Spacing samples -->
+  </section>
+
+  <section id="shadows">
+    <h2>Box Shadows ({n} unique)</h2>
+    <!-- Shadow samples -->
+  </section>
+
+  <section id="radii">
+    <h2>Border Radii ({n} unique)</h2>
+    <!-- Radius samples -->
+  </section>
+
+  <section id="a11y">
+    <h2>WCAG Accessibility ({score})</h2>
+    <!-- Contrast table from Phase 8 -->
+  </section>
+
+  <section id="score">
+    <h2>Design Quality Score: {overall}/100 (Grade: {grade})</h2>
+    <!-- Score bars from Phase 9 -->
+  </section>
+</body>
+</html>
+```
+
+### Inject Dynamic Content
+
+Before writing the file, substitute placeholders with actual extracted data:
+- `{url}` — original URL
+- `{n} colors` — count from Phase 0 color extraction
+- Color swatches — render each color as `<div class="swatch" style="background:{hex}"><span class="swatch-label">{hex}</span></div>`
+- Typography scale — render each level as `<p class="type-sample" style="font-size:{size}; font-weight:{weight}">{tag}: {size} / {weight}</p>`
+- `{base}px base` — from Phase 0.5
+- `{score}` — from Phase 8
+- `{overall}/100` and `{grade}` — from Phase 9
+
 ## Output Format
 
 Produce a structured recreation guide:
